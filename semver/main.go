@@ -14,6 +14,6 @@ func main() {
 	if parsed, err := ParseVersion(currentVersion); err != nil {
 		os.Exit(1)
 	} else {
-		fmt.Print(parsed)
+		fmt.Print(parsed.Increment())
 	}
 }

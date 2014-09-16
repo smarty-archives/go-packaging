@@ -11,10 +11,14 @@ type VersionInfo struct {
 	Major int
 	Minor int
 	Patch int
+	dirty bool
 }
 
 func ParseVersion(version string) (*VersionInfo, error) {
-	parts := strings.Split(version, ".")
+	components := strings.Split(version, "-")
+	dirty := len(components) == 3
+	parts := strings.Split(components[0], ".")
+
 	if len(parts) > 3 {
 		return nil, errors.New("Malformed version, too many parts.")
 	} else if len(parts) < 2 {
@@ -32,6 +36,7 @@ func ParseVersion(version string) (*VersionInfo, error) {
 	}
 
 	info := VersionInfo{}
+	info.dirty = dirty
 	info.Major = parsed[0]
 	info.Minor = parsed[1]
 	if len(parsed) > 2 {
@@ -39,6 +44,19 @@ func ParseVersion(version string) (*VersionInfo, error) {
 	}
 
 	return &info, nil
+}
+
+func (this *VersionInfo) Increment() *VersionInfo {
+	if !this.dirty {
+		return this
+	}
+
+	return &VersionInfo{
+		Major: this.Major,
+		Minor: this.Minor,
+		Patch: this.Patch + 1,
+		dirty: false,
+	}
 }
 
 func (this *VersionInfo) String() string {
