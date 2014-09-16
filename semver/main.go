@@ -1,12 +1,19 @@
 package main
 
-func main() {
-	// var currentVersion string
-	// flag.StringVar(&currentVersion, "current", "", "")
-	// flag.Parse()
+import (
+	"flag"
+	"fmt"
+	"os"
+)
 
-	// // the current version will be provided (if any)
-	// // take the current version and determine if it should be used directly or incremented
-	// // return either the current or incremented version
-	// fmt.Println("Running semver!")
+func main() {
+	var currentVersion string
+	flag.StringVar(&currentVersion, "current", "", "")
+	flag.Parse()
+
+	if parsed, err := ParseVersion(currentVersion); err != nil {
+		os.Exit(1)
+	} else {
+		fmt.Print(parsed)
+	}
 }

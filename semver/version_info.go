@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -41,6 +42,5 @@ func ParseVersion(version string) (*VersionInfo, error) {
 }
 
 func (this *VersionInfo) String() string {
-	return ""
-	// return fmt.Sprintf("%d.%d.%d", this.Major, this.Minor, this.Patch)
+	return fmt.Sprintf("%d.%d.%d", this.Major, this.Minor, this.Patch)
 }

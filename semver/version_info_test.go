@@ -55,4 +55,13 @@ func TestVersionInfo(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 	})
+	Convey("When representing the version as a string", t, func() {
+		Convey("It should display all the parts", func() {
+			version123 := VersionInfo{Major: 1, Minor: 2, Patch: 3}
+			So(version123.String(), ShouldEqual, "1.2.3")
+
+			version456 := VersionInfo{Major: 4, Minor: 5, Patch: 6}
+			So(version456.String(), ShouldEqual, "4.5.6")
+		})
+	})
 }
