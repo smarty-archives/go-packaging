@@ -143,7 +143,8 @@ func (this *Tree) GenerateMakefile() error {
 	} else if this.options.DryRun {
 		fmt.Printf("Generating [Makefile] in [%s]\n", destinationFile)
 	} else {
-		contents := fmt.Sprintf(templateMakefile, this.options.Makefile)
+		makefileDir := path.Join("src", this.options.Makefile) // "go-ify" the directory
+		contents := fmt.Sprintf(templateMakefile, makefileDir)
 		return ioutil.WriteFile(destinationFile, []byte(contents), 0777)
 	}
 	return nil
@@ -151,5 +152,5 @@ func (this *Tree) GenerateMakefile() error {
 
 const templateMakefile = `#!/usr/bin/make -f
 %%:
-	@export GOPATH="$(PWD)"; cd "src/%s"; make %%@
+	@export GOPATH="$(PWD)"; cd "%s"; make %%@
 `
