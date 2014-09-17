@@ -7,15 +7,18 @@ import (
 )
 
 type Options struct {
-	Makefile        bool // copy root makefile + generate makefile
-	Debian          bool // copy root debian to root of generated source tree
 	DryRun          bool
-	Context         build.Context
+	Makefile        string
 	TargetDirectory string
 	SourceDirectory string
+	Context         build.Context
 }
 
 func ParseOptions() *Options {
+	targetDirectory, makefile, dryRun := "", "", false
+	flag.StringVar(&targetDirectory, "target", "output", "")
+	flag.StringVar(&makefile, "makefile", "", "github.com/smartystreets/goconvey")
+	flag.BoolVar(&dryRun, "dry-run", false, "")
 	flag.Parse()
 
 	context := build.Default
@@ -23,18 +26,11 @@ func ParseOptions() *Options {
 	context.CgoEnabled = true
 	workingDirectory, _ := os.Getwd()
 
-	// should we simply have an "include"?, e.g. --include=debian --include=Makefile?
-	// unfortunately both of those need special treatment
-
-	// TODO
 	return &Options{
-		Makefile:        true,
-		Debian:          true,
-		DryRun:          false,
+		Makefile:        makefile,
+		DryRun:          dryRun,
 		Context:         context,
 		SourceDirectory: workingDirectory,
-		TargetDirectory: "output",
+		TargetDirectory: targetDirectory,
 	}
 }
-
-const templateMakefile = ""
