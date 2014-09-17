@@ -9,7 +9,7 @@ func main() {
 	workingDirectory, _ := os.Getwd()
 
 	files := BuildTree(workingDirectory)
-	dryRun := false             // TODO: from command line
+	dryRun := true              // TODO: from command line
 	outputDirectory := "output" // TODO: complain if the target exists? (or write to a temp dir?)
 
 	err := files.Copy(outputDirectory, dryRun)

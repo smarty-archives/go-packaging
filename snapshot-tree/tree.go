@@ -57,6 +57,8 @@ func (this Tree) appendPackage(pkg *build.Package) {
 		return // ignore standard library package
 	}
 
+	fmt.Println(pkg.ImportPath)
+
 	this.appendPackageImports(pkg, pkg.Imports)
 	// this.appendPackageImports(pkg, pkg.TestImports)
 	// this.appendPackageImports(pkg, pkg.XTestImports) // causes a recursion problem
@@ -92,7 +94,9 @@ func (this Tree) appendPackageFiles(pkg *build.Package, items []string) {
 }
 
 func (this Tree) Copy(outputDirectory string, dryRun bool) error {
-	ensureDirectory(outputDirectory, dryRun)
+	if err := ensureDirectory(outputDirectory, dryRun); err != nil {
+		return err
+	}
 
 	for _, file := range this {
 		source := file.Filename
@@ -106,7 +110,7 @@ func (this Tree) Copy(outputDirectory string, dryRun bool) error {
 func ensureDirectory(directory string, dryRun bool) error {
 	if dryRun {
 		fmt.Printf("Making directory [%s]\n", directory)
-	} else if err := os.MkdirAll(directory, 0x777); err != nil {
+	} else if err := os.MkdirAll(directory, 0777); err != nil {
 		return err
 	}
 	return nil
@@ -116,9 +120,12 @@ func copyFile(source, destination string, dryRun bool) error {
 		return err
 	} else if dryRun {
 		fmt.Printf("Copying [%s] to [%s]\n", source, destination)
-		return nil
+	} else if err := copyFileContents(source, destination, dryRun); err != nil {
+		return err
 	}
-
+	return nil
+}
+func copyFileContents(source, destination string, dryRun bool) error {
 	sourceHandle, err := os.Open(source)
 	if err != nil {
 		return err
