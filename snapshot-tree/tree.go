@@ -57,25 +57,23 @@ func (this Tree) appendPackage(pkg *build.Package) {
 		return // ignore standard library package
 	}
 
-	fmt.Println(pkg.ImportPath)
-
 	this.appendPackageImports(pkg, pkg.Imports)
-	// this.appendPackageImports(pkg, pkg.TestImports)
+	this.appendPackageImports(pkg, pkg.TestImports)
 	// this.appendPackageImports(pkg, pkg.XTestImports) // causes a recursion problem
 
 	this.appendPackageFiles(pkg, pkg.GoFiles)
-	// this.appendPackageFiles(pkg, pkg.IgnoredGoFiles)
-	// this.appendPackageFiles(pkg, pkg.CgoFiles)
-	// this.appendPackageFiles(pkg, pkg.CFiles)
-	// this.appendPackageFiles(pkg, pkg.CXXFiles)
-	// this.appendPackageFiles(pkg, pkg.MFiles)
-	// this.appendPackageFiles(pkg, pkg.HFiles)
-	// this.appendPackageFiles(pkg, pkg.SFiles)
-	// this.appendPackageFiles(pkg, pkg.SwigFiles)
-	// this.appendPackageFiles(pkg, pkg.SwigCXXFiles)
-	// this.appendPackageFiles(pkg, pkg.SysoFiles)
-	// this.appendPackageFiles(pkg, pkg.TestGoFiles)
-	// this.appendPackageFiles(pkg, pkg.XTestGoFiles)
+	this.appendPackageFiles(pkg, pkg.IgnoredGoFiles)
+	this.appendPackageFiles(pkg, pkg.CgoFiles)
+	this.appendPackageFiles(pkg, pkg.CFiles)
+	this.appendPackageFiles(pkg, pkg.CXXFiles)
+	this.appendPackageFiles(pkg, pkg.MFiles)
+	this.appendPackageFiles(pkg, pkg.HFiles)
+	this.appendPackageFiles(pkg, pkg.SFiles)
+	this.appendPackageFiles(pkg, pkg.SwigFiles)
+	this.appendPackageFiles(pkg, pkg.SwigCXXFiles)
+	this.appendPackageFiles(pkg, pkg.SysoFiles)
+	this.appendPackageFiles(pkg, pkg.TestGoFiles)
+	this.appendPackageFiles(pkg, pkg.XTestGoFiles)
 }
 func (this Tree) appendPackageImports(pkg *build.Package, imports []string) {
 	for _, importPath := range imports {
@@ -138,6 +136,6 @@ func copyFileContents(source, destination string, dryRun bool) error {
 	}
 	defer destinationHandle.Close()
 
-	_, err = io.Copy(sourceHandle, destinationHandle)
+	_, err = io.Copy(destinationHandle, sourceHandle)
 	return err
 }
