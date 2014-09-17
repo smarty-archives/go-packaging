@@ -30,9 +30,11 @@ func ParseOptions() *Options {
 	return &Options{
 		Makefile:        true,
 		Debian:          true,
-		DryRun:          true,
+		DryRun:          false,
 		Context:         context,
 		SourceDirectory: workingDirectory,
 		TargetDirectory: "output",
 	}
 }
+
+const templateMakefile = ""

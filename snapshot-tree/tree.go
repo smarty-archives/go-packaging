@@ -138,7 +138,7 @@ func copyFileContents(source, destination string) error {
 }
 
 func (this *Tree) CopyDebian() error {
-	sourceDir := this.options.SourceDirectory + "/debian"
+	sourceDir := path.Join(this.options.SourceDirectory, "debian")
 	destinationDir := this.options.TargetDirectory
 	if !this.options.Debian {
 		return nil
@@ -146,13 +146,41 @@ func (this *Tree) CopyDebian() error {
 		return nil
 	} else if err := this.ensureDirectory(destinationDir); err != nil {
 		return err
+	} else if this.options.DryRun {
+		fmt.Printf("Copying [debian] directory to [%s]\n", destinationDir)
 	} else {
 		return exec.Command("cp", "-r", sourceDir, destinationDir).Run()
 	}
+	return nil
 }
 func (this *Tree) CopyMakefile() error {
+	sourceFile := path.Join(this.options.SourceDirectory, "Makefile")
+	destinationDir := this.options.TargetDirectory // TODO: append src/(package-name)
+	destinationFile := path.Join(destinationDir, "Makefile")
+	if !this.options.Makefile {
+		return nil
+	} else if _, err := os.Stat(sourceFile); os.IsNotExist(err) {
+		return nil
+	} else if err := this.ensureDirectory(destinationDir); err != nil {
+		return err
+	} else if this.options.DryRun {
+		fmt.Printf("Copying [Makefile] to [%s]\n", destinationFile)
+	} else {
+		return copyFileContents(sourceFile, destinationFile)
+	}
 	return nil
 }
 func (this *Tree) GenerateMakefile() error {
+	destinationDir := this.options.TargetDirectory // TODO: append src/(package-name)
+	destinationFile := path.Join(destinationDir, "Makefile")
+	if !this.options.Makefile {
+		return nil
+	} else if err := this.ensureDirectory(destinationDir); err != nil {
+		return err
+	} else if this.options.DryRun {
+		fmt.Printf("Generating [Makefile] in [%s]\n", destinationFile)
+	} else {
+		return ioutil.WriteFile(destinationFile, []byte(templateMakefile), 550)
+	}
 	return nil
 }
