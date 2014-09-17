@@ -152,5 +152,5 @@ func (this *Tree) GenerateMakefile() error {
 
 const templateMakefile = `#!/usr/bin/make -f
 %%:
-	@export GOPATH="$(PWD)"; cd "%s"; make %%@
+	@export GOPATH="$(PWD)"; cd "%s"; make $@
 `
