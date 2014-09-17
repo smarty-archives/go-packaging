@@ -1,17 +1,15 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
 func main() {
-	var currentVersion string
-	flag.StringVar(&currentVersion, "current", "", "")
-	flag.Parse()
-
-	if parsed, err := ParseVersion(currentVersion); err != nil {
+	if input, err := ioutil.ReadAll(os.Stdin); err != nil {
+		os.Exit(1)
+	} else if parsed, err := ParseVersion(string(input)); err != nil {
 		os.Exit(1)
 	} else {
 		fmt.Println(parsed.Increment())
