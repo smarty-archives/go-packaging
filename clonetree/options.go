@@ -16,8 +16,8 @@ type Options struct {
 
 func ParseOptions() *Options {
 	targetDirectory, makefile, dryRun := "", "", false
-	flag.StringVar(&targetDirectory, "target", "output", "")
-	flag.StringVar(&makefile, "makefile", "", "github.com/smartystreets/goconvey")
+	flag.StringVar(&targetDirectory, "target", "clone", "")
+	flag.StringVar(&makefile, "makefile", "", "For example: github.com/smartystreets/goconvey")
 	flag.BoolVar(&dryRun, "dry-run", false, "")
 	flag.Parse()
 
