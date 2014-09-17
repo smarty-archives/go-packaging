@@ -21,16 +21,18 @@ func BuildTree(options *Options) *Tree {
 		options: options,
 	}
 
-	for _, directory := range followDirectories(options.SourceDirectory) {
+	for _, directory := range tree.followDirectories(0, options.SourceDirectory) {
 		pkg, _ := options.Context.ImportDir(directory, 0)
 		tree.appendPackage(pkg)
 	}
 
 	return tree
 }
-func followDirectories(root string) []string {
+func (this *Tree) followDirectories(depth int, root string) []string {
 	if strings.HasSuffix(root, ".git") || strings.HasSuffix(root, ".hg") {
 		return []string{} // skip source directories
+	} else if depth == 1 && strings.HasSuffix(root, path.Join("/", this.options.TargetDirectory)) {
+		return []string{} // skip the clone directory
 	}
 
 	found := []string{root}
@@ -38,7 +40,7 @@ func followDirectories(root string) []string {
 	for _, item := range contents {
 		if item.IsDir() {
 			directory := path.Join(root, item.Name())
-			children := followDirectories(directory)
+			children := this.followDirectories(depth+1, directory)
 			found = append(found, children...)
 		}
 	}
