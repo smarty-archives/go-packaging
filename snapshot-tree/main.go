@@ -1,24 +1,20 @@
 package main
 
-import (
-	"fmt"
-	"os"
-)
+import "fmt"
 
 func main() {
-	workingDirectory, _ := os.Getwd()
+	options := ParseOptions()
+	tree := BuildTree(options)
 
-	// TODO: flags from command line:
-	// --makefile (generate a "forwarding makefile")
-	// --dryrun (indicates if we're not actually copying the files)
-	// --output=dir (the location of the directory in which to place the files)
+	fmt.Println(tree.CopyDebian())
 
-	files := BuildTree(workingDirectory)
-	dryRun := false             // TODO: from command line
-	outputDirectory := "output" // TODO: complain if the target exists? (or write to a temp dir?)
-
-	err := files.Copy(outputDirectory, dryRun)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// if err := tree.CopySource(); err != nil {
+	// 	fmt.Println(err)
+	// } else if err := tree.CopyDebian(); err != nil {
+	// 	fmt.Println(err)
+	// } else if err := tree.CopyMakefile(); err != nil {
+	// 	fmt.Println(err)
+	// } else if err := tree.GenerateMakefile(); err != nil {
+	// 	fmt.Println(err)
+	// }
 }

@@ -6,39 +6,35 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 )
 
-var buildContext build.Context
-
-type Tree map[string]SourceFile
-type SourceFile struct {
-	Filename   string
-	ImportPath string
+type Tree struct {
+	files   map[string]SourceFile
+	options *Options
 }
 
-func init() {
-	buildContext = build.Default
-	buildContext.UseAllFiles = true
-	buildContext.CgoEnabled = true
-}
+func BuildTree(options *Options) *Tree {
+	tree := &Tree{
+		files:   map[string]SourceFile{},
+		options: options,
+	}
 
-func BuildTree(directory string) Tree {
-	tree := Tree(map[string]SourceFile{})
-	for _, dir := range followDirectories(directory) {
-		pkg, _ := buildContext.ImportDir(dir, 0)
+	for _, directory := range followDirectories(options.SourceDirectory) {
+		pkg, _ := options.Context.ImportDir(directory, 0)
 		tree.appendPackage(pkg)
 	}
+
 	return tree
 }
 func followDirectories(root string) []string {
-	found := []string{root}
-
 	if strings.HasSuffix(root, ".git") || strings.HasSuffix(root, ".hg") {
 		return []string{} // skip source directories
 	}
 
+	found := []string{root}
 	contents, _ := ioutil.ReadDir(root)
 	for _, item := range contents {
 		if item.IsDir() {
@@ -50,7 +46,7 @@ func followDirectories(root string) []string {
 
 	return found
 }
-func (this Tree) appendPackage(pkg *build.Package) {
+func (this *Tree) appendPackage(pkg *build.Package) {
 	if pkg == nil {
 		return // ignore packages that can't be loaded
 	} else if pkg.Goroot && pkg.ImportPath != "" && !strings.Contains(pkg.ImportPath, ".") {
@@ -59,7 +55,7 @@ func (this Tree) appendPackage(pkg *build.Package) {
 
 	this.appendPackageImports(pkg, pkg.Imports)
 	this.appendPackageImports(pkg, pkg.TestImports)
-	// this.appendPackageImports(pkg, pkg.XTestImports) // causes a recursion problem
+	// this.appendPackageImports(pkg, pkg.XTestImports) // TODO: investigate recursion problem
 
 	this.appendPackageFiles(pkg, pkg.GoFiles)
 	this.appendPackageFiles(pkg, pkg.IgnoredGoFiles)
@@ -73,57 +69,58 @@ func (this Tree) appendPackage(pkg *build.Package) {
 	this.appendPackageFiles(pkg, pkg.SwigCXXFiles)
 	this.appendPackageFiles(pkg, pkg.SysoFiles)
 	this.appendPackageFiles(pkg, pkg.TestGoFiles)
-	this.appendPackageFiles(pkg, pkg.XTestGoFiles)
+	// this.appendPackageFiles(pkg, pkg.XTestGoFiles)
 }
-func (this Tree) appendPackageImports(pkg *build.Package, imports []string) {
+func (this *Tree) appendPackageImports(pkg *build.Package, imports []string) {
 	for _, importPath := range imports {
-		child, _ := buildContext.Import(importPath, "", 0)
+		child, _ := this.options.Context.Import(importPath, "", 0)
 		this.appendPackage(child)
 	}
 }
-func (this Tree) appendPackageFiles(pkg *build.Package, items []string) {
+func (this *Tree) appendPackageFiles(pkg *build.Package, items []string) {
 	for _, item := range items {
 		fullname := path.Join(pkg.Dir, item)
-		this[fullname] = SourceFile{
+		this.files[fullname] = SourceFile{
 			Filename:   fullname,
 			ImportPath: pkg.ImportPath,
 		}
 	}
 }
 
-func (this Tree) Copy(outputDirectory string, dryRun bool) error {
-	if err := ensureDirectory(outputDirectory, dryRun); err != nil {
+func (this *Tree) CopySource() error {
+	targetDir := this.options.TargetDirectory
+	if err := this.ensureDirectory(targetDir); err != nil {
 		return err
 	}
 
-	for _, file := range this {
+	for _, file := range this.files {
 		source := file.Filename
-		destination := path.Join(outputDirectory, "src", file.ImportPath, path.Base(file.Filename))
-		if err := copyFile(source, destination, dryRun); err != nil {
+		destination := file.Destination(targetDir)
+		if err := this.copyFile(source, destination); err != nil {
 			return err
 		}
 	}
 	return nil
 }
-func ensureDirectory(directory string, dryRun bool) error {
-	if dryRun {
+func (this *Tree) ensureDirectory(directory string) error {
+	if this.options.DryRun {
 		fmt.Printf("Making directory [%s]\n", directory)
 	} else if err := os.MkdirAll(directory, 0777); err != nil {
 		return err
 	}
 	return nil
 }
-func copyFile(source, destination string, dryRun bool) error {
-	if err := ensureDirectory(path.Dir(destination), dryRun); err != nil {
+func (this *Tree) copyFile(source, destination string) error {
+	if err := this.ensureDirectory(path.Dir(destination)); err != nil {
 		return err
-	} else if dryRun {
+	} else if this.options.DryRun {
 		fmt.Printf("Copying [%s] to [%s]\n", source, destination)
-	} else if err := copyFileContents(source, destination, dryRun); err != nil {
+	} else if err := copyFileContents(source, destination); err != nil {
 		return err
 	}
 	return nil
 }
-func copyFileContents(source, destination string, dryRun bool) error {
+func copyFileContents(source, destination string) error {
 	sourceHandle, err := os.Open(source)
 	if err != nil {
 		return err
@@ -138,4 +135,24 @@ func copyFileContents(source, destination string, dryRun bool) error {
 
 	_, err = io.Copy(destinationHandle, sourceHandle)
 	return err
+}
+
+func (this *Tree) CopyDebian() error {
+	sourceDir := this.options.SourceDirectory + "/debian"
+	destinationDir := this.options.TargetDirectory
+	if !this.options.Debian {
+		return nil
+	} else if _, err := os.Stat(sourceDir); os.IsNotExist(err) {
+		return nil
+	} else if err := this.ensureDirectory(destinationDir); err != nil {
+		return err
+	} else {
+		return exec.Command("cp", "-r", sourceDir, destinationDir).Run()
+	}
+}
+func (this *Tree) CopyMakefile() error {
+	return nil
+}
+func (this *Tree) GenerateMakefile() error {
+	return nil
 }
