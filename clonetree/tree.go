@@ -32,6 +32,8 @@ func (this *Tree) followDirectories(depth int, root string) []string {
 	if strings.HasSuffix(root, ".git") || strings.HasSuffix(root, ".hg") {
 		return []string{} // skip source directories
 	} else if depth == 1 && strings.HasSuffix(root, path.Join("/", this.options.TargetDirectory)) {
+		// note: if they have some qualifying prefix on the clone directory, e.g. ../ that qualifier
+		// places the clone directory outside of the scope of our concern
 		return []string{} // skip the clone directory
 	}
 
