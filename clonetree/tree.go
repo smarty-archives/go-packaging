@@ -156,8 +156,8 @@ func (this *Tree) GenerateMakefile() error {
 
 const templateMakefile = `#!/usr/bin/make -f
 %%:
-	@export GOPATH="$(PWD)"; cd "%s"; make $@
+	@export GOPATH="$(PWD)"; cd "%s"; $(MAKE) $@ --no-print-directory
 clean:
-	@export GOPATH="$(PWD)"; cd "%s"; make clean
+	@export GOPATH="$(PWD)"; cd "%s"; $(MAKE) clean --no-print-directory
 	@rm -rf bin pkg
 `
