@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+PACKAGE_PATH := github.com/smartystreets/go-packaging
+
+compile: clean
+	GOPATH="$(PWD)" go install "$(PACKAGE_PATH)/clonetree"
+	GOPATH="$(PWD)" go install "$(PACKAGE_PATH)/semver"
+
+install:
+	mkdir -p "$(DESTDIR)/usr/bin"
+	cp "bin/clonetree" "bin/semver" "$(DESTDIR)/usr/bin"
+
+clean:
+	rm -rf bin pkg

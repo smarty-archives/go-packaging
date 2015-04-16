@@ -1,0 +1,11 @@
+/workspace/
+/.vagrant/
+*DS_Store*
+*.swp
+__MACOSX
+/bin
+
+/*.dsc
+/*.deb
+/*.changes
+/*.tar.gz
