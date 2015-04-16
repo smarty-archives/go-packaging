@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-PACKAGE_NAME := packaging-tools
+PACKAGE_NAME := go-packaging
 PACKAGE_PATH := github.com/smartystreets/go-packaging
 
 compile:
