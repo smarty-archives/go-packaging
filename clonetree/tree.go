@@ -11,14 +11,17 @@ import (
 )
 
 type Tree struct {
-	files   map[string]SourceFile
-	options *Options
+	files    map[string]SourceFile
+	imported map[string]struct{}
+	options  *Options
 }
 
 func BuildTree(options *Options) *Tree {
+	fmt.Println("Building tree...")
 	tree := &Tree{
-		files:   map[string]SourceFile{},
-		options: options,
+		files:    map[string]SourceFile{},
+		imported: map[string]struct{}{},
+		options:  options,
 	}
 
 	for _, directory := range tree.followDirectories(0, options.SourceDirectory) {
@@ -54,6 +57,12 @@ func (this *Tree) appendPackage(pkg *build.Package) {
 		return // ignore packages that can't be loaded
 	} else if pkg.Goroot && pkg.ImportPath != "" && !strings.Contains(pkg.ImportPath, ".") {
 		return // ignore standard library package
+	}
+
+	if _, contains := this.imported[pkg.ImportPath]; contains {
+		return
+	} else {
+		this.imported[pkg.ImportPath] = struct{}{}
 	}
 
 	this.appendPackageImports(pkg, pkg.Imports)
