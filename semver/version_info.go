@@ -46,7 +46,7 @@ func ParseVersion(version string) (*VersionInfo, error) {
 	return &info, nil
 }
 
-func (this *VersionInfo) Increment() *VersionInfo {
+func (this *VersionInfo) IncrementPatch() *VersionInfo {
 	if !this.dirty {
 		return this
 	}
@@ -55,6 +55,30 @@ func (this *VersionInfo) Increment() *VersionInfo {
 		Major: this.Major,
 		Minor: this.Minor,
 		Patch: this.Patch + 1,
+		dirty: false,
+	}
+}
+func (this *VersionInfo) IncrementMinor() *VersionInfo {
+	if !this.dirty {
+		return this
+	}
+
+	return &VersionInfo{
+		Major: this.Major,
+		Minor: this.Minor + 1,
+		Patch: 0,
+		dirty: false,
+	}
+}
+func (this *VersionInfo) IncrementMajor() *VersionInfo {
+	if !this.dirty {
+		return this
+	}
+
+	return &VersionInfo{
+		Major: this.Major + 1,
+		Minor: 0,
+		Patch: 0,
 		dirty: false,
 	}
 }
