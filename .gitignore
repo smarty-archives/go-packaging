@@ -9,3 +9,4 @@ __MACOSX
 /*.deb
 /*.changes
 /*.tar.gz
+/.idea
