@@ -12,6 +12,11 @@ restore:
 clean:
 	rm -rf workspace *.tar.?z *.dsc *.deb *.changes
 
+test:
+	go build ./...
+	go generate ./...
+	go test -v -short ./...
+
 prepare: clean compile restore
 	mkdir -p workspace
 	cp Releasefile workspace/Makefile
