@@ -8,62 +8,56 @@ import (
 )
 
 type UpstreamVersion struct {
-	Version  string
+	Base     string
 	Revision int
-	dirty    bool
 }
 
-func ParseUpstream(value string) (UpstreamVersion, error) {
-	components := strings.Split(strings.TrimSpace(value), "-")
-	if len(components) == 2 {
-		return parseClean(components)
-	} else if len(components) >= 4 {
-		return parseDirty(components)
+func NewUpstreamVersion(base string, revision int) UpstreamVersion {
+	return UpstreamVersion{Base: base, Revision: revision}
+}
+
+func ParseUpstream(base, raw string) (UpstreamVersion, error) {
+	base = strings.TrimSpace(base)
+	raw = strings.TrimSpace(raw)
+
+	if len(base) == 0 {
+		return malformed()
+	} else if len(raw) == 0 {
+		return NewUpstreamVersion(base, 0), nil
+	} else if !strings.HasPrefix(raw, base) {
+		return NewUpstreamVersion(base, 0), nil
+	} else {
+		return parseUpstream(base, raw[len(base):])
+	}
+}
+
+func malformed() (UpstreamVersion, error) {
+	return UpstreamVersion{}, errors.New("malformed version")
+}
+
+func parseUpstream(base, suffix string) (UpstreamVersion, error) {
+	split := strings.Split(suffix, "-")
+	if len(split) == 1 {
+		return NewUpstreamVersion(base, 0), nil
+	} else if len(split[0]) > 0 {
+		return NewUpstreamVersion(base, 0), nil
+	} else if len(split) == 2 {
+		return increment(base, split[1], 0)
+	} else if len(split) > 2 {
+		return increment(base, split[1], 1)
 	} else {
 		return malformed()
 	}
 }
 
-func parseClean(components []string) (UpstreamVersion, error) {
-	revision, err := strconv.Atoi(components[1])
-	if err != nil {
+func increment(base, revision string, offset int) (UpstreamVersion, error) {
+	if revision, err := strconv.Atoi(revision); err != nil {
 		return malformed()
-	}
-
-	return UpstreamVersion{
-		Version:  components[0],
-		Revision: revision,
-	}, nil
-}
-
-func parseDirty(components []string) (UpstreamVersion, error) {
-	revision, err := strconv.Atoi(components[len(components)-3])
-	if err != nil {
-		return malformed()
-	}
-
-	return UpstreamVersion{
-		Version:  strings.Join(components[0:len(components)-3], "-"),
-		Revision: revision,
-		dirty:    true,
-	}, nil
-}
-
-func malformed() (UpstreamVersion, error) {
-	return UpstreamVersion{}, errors.New("Malformed version.")
-}
-
-func (this UpstreamVersion) Increment() UpstreamVersion {
-	if !this.dirty {
-		return this
-	}
-
-	return UpstreamVersion{
-		Version:  this.Version,
-		Revision: this.Revision + 1,
+	} else {
+		return NewUpstreamVersion(base, revision+offset), nil
 	}
 }
 
 func (this UpstreamVersion) String() string {
-	return fmt.Sprintf("%s-%d", this.Version, this.Revision)
+	return fmt.Sprintf("%s-%d", this.Base, this.Revision)
 }

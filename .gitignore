@@ -4,6 +4,7 @@
 *.swp
 __MACOSX
 /bin
+.idea
 
 /*.dsc
 /*.deb

@@ -14,20 +14,53 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 func main() {
-	flag.Parse()
-
-	if input, err := ioutil.ReadAll(os.Stdin); err != nil {
-		os.Exit(1)
-	} else if parsed, err := ParseNative(string(input)); err != nil {
-		os.Exit(1)
+	if result, err := parse(readInput(), readUpstream()); err == nil {
+		fmt.Println(result)
 	} else {
-		fmt.Println(parsed.Increment())
+		os.Exit(1)
+	}
+}
+
+func readInput() string {
+	input, _ := ioutil.ReadAll(os.Stdin)
+	return string(input)
+}
+func readUpstream() string {
+	args := os.Args[1:]
+	if len(args) > 0 {
+		return strings.TrimSpace(args[0])
+	} else {
+		return ""
+	}
+}
+
+func parse(input, upstream string) (interface{}, error) {
+	if len(upstream) > 0 {
+		return parseUpstreamVersion(input, upstream)
+	} else {
+		return parseNativeVersion(input)
+	}
+}
+
+func parseUpstreamVersion(input, upstream string) (interface{}, error) {
+	if parsed, err := ParseUpstream(upstream, input); err == nil {
+		return parsed, nil
+	} else {
+		return "", err
+	}
+}
+
+func parseNativeVersion(input string) (interface{}, error) {
+	if parsed, err := ParseNative(input); err == nil {
+		return parsed.Increment(), nil
+	} else {
+		return "", err
 	}
 }
