@@ -46,7 +46,7 @@ func ParseNative(version string) (*NativeVersion, error) {
 	return &info, nil
 }
 
-func (this *NativeVersion) IncrementPatch() *NativeVersion {
+func (this *NativeVersion) Increment() *NativeVersion {
 	if !this.dirty {
 		return this
 	}

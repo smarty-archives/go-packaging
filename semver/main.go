@@ -28,6 +28,6 @@ func main() {
 	} else if parsed, err := ParseNative(string(input)); err != nil {
 		os.Exit(1)
 	} else {
-		fmt.Println(parsed.IncrementPatch())
+		fmt.Println(parsed.Increment())
 	}
 }

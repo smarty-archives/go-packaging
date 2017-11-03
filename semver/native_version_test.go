@@ -53,7 +53,7 @@ func (this *NativeVersionFixture) TestDisplay() {
 
 func (this *NativeVersionFixture) TestPatchRemainsUnchangedIfNotDirty() {
 	version := &NativeVersion{Major: 1, Minor: 2, Patch: 3, dirty: false}
-	incremented := version.IncrementPatch()
+	incremented := version.Increment()
 	this.So(incremented, should.NotBeNil)
 	this.So(version, should.PointTo, incremented)
 	this.So(incremented.String(), should.Equal, "1.2.3")
@@ -61,7 +61,7 @@ func (this *NativeVersionFixture) TestPatchRemainsUnchangedIfNotDirty() {
 
 func (this *NativeVersionFixture) TestPatchIncrementsWhenDirty() {
 	version := &NativeVersion{Major: 1, Minor: 2, Patch: 3, dirty: true}
-	incremented := version.IncrementPatch()
+	incremented := version.Increment()
 	this.So(incremented, should.NotBeNil)
 	this.So(version, should.NotPointTo, incremented)
 	this.So(incremented.String(), should.Equal, "1.2.4")
@@ -69,7 +69,7 @@ func (this *NativeVersionFixture) TestPatchIncrementsWhenDirty() {
 
 func (this *NativeVersionFixture) TestPatchOnlyIncrementsOnce() {
 	version := &NativeVersion{Major: 1, Minor: 2, Patch: 3, dirty: true}
-	incremented := version.IncrementPatch().IncrementPatch().IncrementPatch()
+	incremented := version.Increment().Increment().Increment()
 	this.So(incremented, should.NotBeNil)
 	this.So(version, should.NotPointTo, incremented)
 	this.So(incremented.String(), should.Equal, "1.2.4")
