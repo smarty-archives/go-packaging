@@ -14,39 +14,42 @@ type UpstreamVersion struct {
 }
 
 func ParseUpstream(value string) (UpstreamVersion, error) {
-	value = strings.TrimSpace(value)
-	components := strings.Split(value, "-")
-	dirty := len(components) != 2
+	components := strings.Split(strings.TrimSpace(value), "-")
+	if len(components) == 2 {
+		return parseClean(components)
+	} else if len(components) >= 4 {
+		return parseDirty(components)
+	} else {
+		return malformed()
+	}
+}
 
-	if len(components) < 2 {
-		return UpstreamVersion{}, errors.New("Malformed version.")
+func parseClean(components []string) (UpstreamVersion, error) {
+	revision, err := strconv.Atoi(components[1])
+	if err != nil {
+		return malformed()
 	}
 
-	if len(components) >= 4 {
-		revision, err := strconv.Atoi(components[len(components)-3])
-		if err != nil {
-			return UpstreamVersion{}, errors.New("Malformed version.")
-		}
+	return UpstreamVersion{
+		Version:  components[0],
+		Revision: revision,
+	}, nil
+}
 
-		return UpstreamVersion{
-			Version:  strings.Join(components[0:len(components)-3], "-"),
-			Revision: revision,
-			dirty:    true,
-		}, nil
+func parseDirty(components []string) (UpstreamVersion, error) {
+	revision, err := strconv.Atoi(components[len(components)-3])
+	if err != nil {
+		return malformed()
 	}
 
-	if !dirty {
-		revision, err := strconv.Atoi(components[1])
-		if err != nil {
-			return UpstreamVersion{}, errors.New("Malformed version.")
-		}
+	return UpstreamVersion{
+		Version:  strings.Join(components[0:len(components)-3], "-"),
+		Revision: revision,
+		dirty:    true,
+	}, nil
+}
 
-		return UpstreamVersion{
-			Version:  components[0],
-			Revision: revision,
-		}, nil
-	}
-
+func malformed() (UpstreamVersion, error) {
 	return UpstreamVersion{}, errors.New("Malformed version.")
 }
 
