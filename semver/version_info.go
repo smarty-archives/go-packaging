@@ -58,30 +58,6 @@ func (this *VersionInfo) IncrementPatch() *VersionInfo {
 		dirty: false,
 	}
 }
-func (this *VersionInfo) IncrementMinor() *VersionInfo {
-	if !this.dirty {
-		return this
-	}
-
-	return &VersionInfo{
-		Major: this.Major,
-		Minor: this.Minor + 1,
-		Patch: 0,
-		dirty: false,
-	}
-}
-func (this *VersionInfo) IncrementMajor() *VersionInfo {
-	if !this.dirty {
-		return this
-	}
-
-	return &VersionInfo{
-		Major: this.Major + 1,
-		Minor: 0,
-		Patch: 0,
-		dirty: false,
-	}
-}
 
 func (this *VersionInfo) String() string {
 	return fmt.Sprintf("%d.%d.%d", this.Major, this.Minor, this.Patch)
