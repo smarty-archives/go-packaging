@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-type VersionInfo struct {
+type NativeVersion struct {
 	Major int
 	Minor int
 	Patch int
 	dirty bool
 }
 
-func ParseVersion(version string) (*VersionInfo, error) {
+func ParseVersion(version string) (*NativeVersion, error) {
 	components := strings.Split(version, "-")
 	dirty := len(components) == 3
 	parts := strings.Split(components[0], ".")
@@ -35,7 +35,7 @@ func ParseVersion(version string) (*VersionInfo, error) {
 		}
 	}
 
-	info := VersionInfo{}
+	info := NativeVersion{}
 	info.dirty = dirty
 	info.Major = parsed[0]
 	info.Minor = parsed[1]
@@ -46,12 +46,12 @@ func ParseVersion(version string) (*VersionInfo, error) {
 	return &info, nil
 }
 
-func (this *VersionInfo) IncrementPatch() *VersionInfo {
+func (this *NativeVersion) IncrementPatch() *NativeVersion {
 	if !this.dirty {
 		return this
 	}
 
-	return &VersionInfo{
+	return &NativeVersion{
 		Major: this.Major,
 		Minor: this.Minor,
 		Patch: this.Patch + 1,
@@ -59,6 +59,6 @@ func (this *VersionInfo) IncrementPatch() *VersionInfo {
 	}
 }
 
-func (this *VersionInfo) String() string {
+func (this *NativeVersion) String() string {
 	return fmt.Sprintf("%d.%d.%d", this.Major, this.Minor, this.Patch)
 }
