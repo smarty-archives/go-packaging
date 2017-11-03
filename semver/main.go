@@ -25,7 +25,7 @@ func main() {
 
 	if input, err := ioutil.ReadAll(os.Stdin); err != nil {
 		os.Exit(1)
-	} else if parsed, err := ParseVersion(string(input)); err != nil {
+	} else if parsed, err := ParseNative(string(input)); err != nil {
 		os.Exit(1)
 	} else {
 		fmt.Println(parsed.IncrementPatch())

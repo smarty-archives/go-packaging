@@ -16,12 +16,12 @@ type NativeVersionFixture struct {
 }
 
 func (this *NativeVersionFixture) assertParseFailure(input string) {
-	version, err := ParseVersion(input)
+	version, err := ParseNative(input)
 	this.So(version, should.BeNil)
 	this.So(err, should.NotBeNil)
 }
 func (this *NativeVersionFixture) assertParseSuccess(input string, major, minor, patch int) {
-	version, err := ParseVersion(input)
+	version, err := ParseNative(input)
 	this.So(err, should.BeNil)
 	if this.So(version, should.NotBeNil) {
 		this.So(version.Major, should.Equal, major)

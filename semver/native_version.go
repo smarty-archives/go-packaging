@@ -14,7 +14,7 @@ type NativeVersion struct {
 	dirty bool
 }
 
-func ParseVersion(version string) (*NativeVersion, error) {
+func ParseNative(version string) (*NativeVersion, error) {
 	components := strings.Split(version, "-")
 	dirty := len(components) == 3
 	parts := strings.Split(components[0], ".")
