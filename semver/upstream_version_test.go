@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/smartystreets/gunit"
 	"github.com/smartystreets/assertions/should"
+	"github.com/smartystreets/gunit"
 )
 
 func TestUpstreamVersionFixture(t *testing.T) {
